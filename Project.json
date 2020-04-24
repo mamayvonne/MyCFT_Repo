@@ -1,0 +1,103 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "",
+    "Metadata": {
+
+    },
+    "Parameters": {"vpccidr": {
+        "Description": "forvpccidr",
+        "Type": "String"
+    },
+    "pubsn1cidr": {
+        "Description": "this is for publicsn1",
+        "Type": "String"
+    },
+    "pubsn2cidr": {
+        "Description": "this is for publicsn2",
+        "Type": "String"
+    },
+    "prisncidr": {
+        "Description": "this is for privatesn",
+        "Type": "String"
+      }
+      },
+    "Mappings": {
+
+    },
+    "Conditions": {
+
+    },
+    "Resources": {"provpc": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": { "Ref": "vpccidr" },
+        "Tags": [{ "Key": "Name", "Value":  "provpc" }]
+      }
+    },
+    "proigw": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [{ "Key": "Name", "Value":  "proigw" }]
+      }
+    },
+    "AttachGateway": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": { "Ref": "provpc" },
+        "InternetGatewayId": { "Ref": "proigw" }
+      }
+    },
+    "prortb": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "provpc" },
+        "Tags": [{ "Key": "Name", "Value":  "prortb" }]
+      }
+    },
+    "prort": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "RouteTableId": { "Ref": "prortb" },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": { "Ref": "proigw" }
+      }
+    },
+    "rtbass": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "pubsn1" },
+        "RouteTableId": { "Ref": "prortb" }
+      }
+    },
+      "pubsn1": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "AvailabilityZone": "us-east-2a",
+          "VpcId": { "Ref": "provpc" },
+          "CidrBlock": { "Ref": "pubsn1cidr" },
+          "Tags": [{ "Key": "Name", "Value":  "pubsn1" }]
+        }
+        },
+        "pubsn2": {
+          "Type": "AWS::EC2::Subnet",
+          "Properties": {
+            "AvailabilityZone": "us-east-2b",
+            "VpcId": { "Ref": "provpc" },
+            "CidrBlock": { "Ref": "pubsn2cidr" },
+            "Tags": [{ "Key": "Name", "Value":  "pubsn2" }]
+          }
+      },
+      "prisn1": {
+        "Type": "AWS::EC2::Subnet",
+        "Properties": {
+          "AvailabilityZone": "us-east-2a",
+          "VpcId": { "Ref": "provpc" },
+          "CidrBlock": { "Ref": "prisncidr" },
+          "Tags": [{ "Key": "Name", "Value":  "prisn1" }]
+        }
+      }
+    },
+    "Outputs": {
+
+    }
+}
