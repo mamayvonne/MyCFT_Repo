@@ -8,6 +8,20 @@
         "Description": "forvpccidr",
         "Type": "String"
     },
+    "instanceType": {
+      "Description": "My instance types",
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues" : ["t2.small","t2.small","t2.large","t2.micro"]
+    },
+    "keypair": {
+      "Description": "For ssh",
+      "Type": "String"
+    },
+    "ImageId": {
+      "Description": "For webserver",
+      "Type": "String"
+    },
     "pubsn1cidr": {
         "Description": "this is for publicsn1",
         "Type": "String"
@@ -86,8 +100,47 @@
             "CidrBlock": { "Ref": "pubsn2cidr" },
             "Tags": [{ "Key": "Name", "Value":  "pubsn2" }]
           }
-      },
-      "prisn1": {
+        },
+        "prowebserver1" : {
+          "Type" : "AWS::EC2::Instance",
+          "Properties" : {
+            "InstanceType" : { "Ref" : "instanceType" },
+            "SecurityGroupIds" : [ { "Ref" : "proSG" } ],
+            "KeyName" : { "Ref" : "keypair" },
+            "SubnetId" : { "Ref" : "pubsn2" },
+            "ImageId" : { "Ref": "ImageId" }
+          }
+        },
+        "prowebserver" : {
+          "Type" : "AWS::EC2::Instance",
+          "Properties" : {
+            "InstanceType" : { "Ref" : "instanceType" },
+            "SecurityGroupIds" : [ { "Ref" : "proSG" } ],
+            "KeyName" : { "Ref" : "keypair" },
+            "SubnetId" : { "Ref" : "pubsn1" },
+            "ImageId" : { "Ref": "ImageId" }
+          }
+        },
+        "proSG" : {
+   "Type" : "AWS::EC2::SecurityGroup",
+   "Properties" : {
+      "GroupDescription" : "Allow http to client host",
+      "VpcId" : {"Ref" : "provpc"},
+      "SecurityGroupIngress" : [{
+         "IpProtocol" : "tcp",
+         "FromPort" : 80,
+         "ToPort" : 80,
+         "CidrIp" : "0.0.0.0/0"
+      }],
+      "SecurityGroupEgress" : [{
+         "IpProtocol" : "tcp",
+         "FromPort" : 80,
+         "ToPort" : 80,
+         "CidrIp" : "0.0.0.0/0"
+      }]
+    }
+  },
+  "prisn1": {
         "Type": "AWS::EC2::Subnet",
         "Properties": {
           "AvailabilityZone": "us-east-2a",
